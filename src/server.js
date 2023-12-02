@@ -1,5 +1,5 @@
 import net from 'node:net'
-import parseHttpReq from './httpParser.js'
+import { parseHttpReq, parseHttpRes } from './httpParser.js'
 
 const PORT = 3000
 
@@ -10,15 +10,15 @@ const connectionListener = (socket) => {
 
   socket.on('data', (data) => {
     console.log('server.connection.data event triggered')
-    console.log(parseHttpReq(data))
+    
+    const req = parseHttpReq(data)
+
+    socket.write(parseHttpRes(), 'utf8', () => true)
   })
 
   socket.on('end', () => {
     console.log('server.connection.end event triggered')
   })
-
-  socket.write('hello world')
-  socket.pipe(socket)
 }
 
 const server = net.createServer(serverOptions, connectionListener)

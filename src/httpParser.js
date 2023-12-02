@@ -9,12 +9,8 @@
 const parseHttpReq = (buffer) => {
   const rawHttpReqLines = buffer.toString().split('\r\n')
 
-  console.debug(buffer.toString())
-  console.debug(rawHttpReqLines)
-
   // first line is method, resource and HTTP version
   const [method, resource, httpVersion] = rawHttpReqLines[0].split(' ')
-  console.debug({ method, resource, httpVersion })
 
   // then we get headers
   const headers = {}
@@ -37,4 +33,16 @@ const parseHttpReq = (buffer) => {
   }
 }
 
-export default parseHttpReq
+const parseHttpRes = (res) => {
+  return `
+  HTTP/1.1 200 OK
+  Server: Node.js
+  Content-Type: text/html; charset=iso-8859-1
+  Content-Length: 0
+  `
+}
+
+export {
+  parseHttpReq,
+  parseHttpRes,
+}
