@@ -1,0 +1,12 @@
+{
+  "name": "parse-http-nodejs",
+  "version": "0.1.0",
+  "description": "The goal of this project is to explore Node.js libraries by creating an API where I'll set a TCP listener and will parse the HTTP requests by myself.",
+  "main": "src/server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node --watch src/server.js"
+  },
+  "author": "Caique Pereira <caique_cp@hotmail.com>",
+  "license": "UNLICENSED"
+}
