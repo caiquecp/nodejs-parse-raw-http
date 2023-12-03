@@ -1,10 +1,27 @@
 /**
- * @typedef 
+ * HTTP request object.
+ * @typedef {Object} HttpRequest
+ * @property {string} httpVersion
+ * @property {string} method
+ * @property {string} resource
+ * @property {Object.<string, string>} headers - The HTTP headers as key-value pairs.
+ * @property {string?} body
+ */
+
+/**
+ * HTTP response object.
+ * @typedef {Object} HttpResponse
+ * @property {HttpRequest} request
+ * @property {number} statusCode
+ * @property {string} statusMessage
+ * @property {Object.<string, string>} headers - The HTTP headers as key-value pairs.
+ * @property {string?} body - Note: the body will be ignored depending on the method.
  */
 
 /**
  * Parse a raw HTTP request into a HTTP request object.
- * @param {Buffer} buffer 
+ * @param {Buffer} buffer
+ * @returns {HttpRequest} the HTTP request as an object. 
  */
 const parseHttpReq = (buffer) => {
   const rawHttpReqLines = buffer.toString().split('\r\n')
@@ -24,22 +41,32 @@ const parseHttpReq = (buffer) => {
   })
 
   // last but not least, we check the body (depending on the method)
+  const body = null;
 
   return {
+    httpVersion,
     method,
     resource,
-    httpVersion,
-    headers
+    headers,
+    body
   }
 }
 
+/**
+ * Parse a HTTP response object into a raw HTTP response.
+ * @param {HttpResponse} res
+ * @returns {string} the raw HTTP response. 
+ */
 const parseHttpRes = (res) => {
-  return `
-  HTTP/1.1 200 OK
-  Server: Node.js
-  Content-Type: text/html; charset=iso-8859-1
-  Content-Length: 0
-  `
+  const rawHttpResLines = []
+
+  rawHttpResLines.push(`${res.request.httpVersion} ${res.statusCode} ${res.statusMessage}`)
+  Object.entries(res.headers).forEach(([key, value]) => rawHttpResLines.push(`${key}: ${value}`))
+
+  // ending empty lines
+  rawHttpResLines.push('', '')
+
+  return rawHttpResLines.join('\r\n')
 }
 
 export {

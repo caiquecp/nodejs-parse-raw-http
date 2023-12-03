@@ -1,8 +1,39 @@
 import net from 'node:net'
 import { parseHttpReq, parseHttpRes } from './httpParser.js'
 
-const PORT = 3000
+/**
+ * Create default headers for HTTP response.
+ * @returns {Object.<string, string>}
+ */
+const createDefaultHeaders = () => ({
+  'Date': (new Date()).toUTCString(),
+  'Server': 'CCPDEV.SERVER',
+  'Content-Type': 'application/octet-stream',
+  'Content-Length': '0',
+})
 
+const controllers = {
+  'GET /health': (req) => ({
+    request: req,
+    statusCode: 200,
+    statusMessage: 'OK',
+    headers: createDefaultHeaders()
+  })
+}
+
+/**
+ * Default controller - will return 404.
+ * @param {import('./httpParser.js').HttpRequest} req 
+ * @returns {import('./httpParser.js').HttpResponse}
+ */
+const defaultController = (req) => ({
+  request: req,
+  statusCode: 404,
+  statusMessage: 'Not Found',
+  headers: createDefaultHeaders(),
+})
+
+const PORT = 3000
 const serverOptions = {}
 
 const connectionListener = (socket) => {
@@ -12,8 +43,17 @@ const connectionListener = (socket) => {
     console.log('server.connection.data event triggered')
     
     const req = parseHttpReq(data)
+    console.debug('req', req)
 
-    socket.write(parseHttpRes(), 'utf8', () => true)
+    const handler = controllers[`${req.method} ${req.resource}`] || defaultController
+    const res = handler(req)
+    console.debug('res', res)
+
+    const rawRes = parseHttpRes(res)
+    console.debug(rawRes)
+
+    socket.write(rawRes, 'utf8', () => true)
+    socket.end()
   })
 
   socket.on('end', () => {
